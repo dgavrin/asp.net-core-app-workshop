@@ -1,7 +1,6 @@
-﻿using BackEnd.Data;
-using System.Linq;
+﻿using System.Linq;
 
-namespace BackEnd.Infrastructure
+namespace BackEnd.Data
 {
     public static class EntityExtensions
     {
