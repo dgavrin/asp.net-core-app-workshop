@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BackEnd.Models;
 
 namespace BackEnd.Controllers
 {
-    public class SpeakersController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class SpeakersController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,130 +18,85 @@ namespace BackEnd.Controllers
             _context = context;
         }
 
-        // GET: Speakers
-        public async Task<IActionResult> Index()
+        // GET: api/Speakers
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Speaker>>> GetSpeakers()
         {
-            return View(await _context.Speakers.ToListAsync());
+            return await _context.Speakers.ToListAsync();
         }
 
-        // GET: Speakers/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: api/Speakers/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Speaker>> GetSpeaker(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var speaker = await _context.Speakers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (speaker == null)
-            {
-                return NotFound();
-            }
-
-            return View(speaker);
-        }
-
-        // GET: Speakers/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Speakers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Bio,WebSite")] Speaker speaker)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(speaker);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(speaker);
-        }
-
-        // GET: Speakers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
             var speaker = await _context.Speakers.FindAsync(id);
+
             if (speaker == null)
             {
                 return NotFound();
             }
-            return View(speaker);
+
+            return speaker;
         }
 
-        // POST: Speakers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Bio,WebSite")] Speaker speaker)
+        // PUT: api/Speakers/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutSpeaker(int id, Speaker speaker)
         {
             if (id != speaker.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (ModelState.IsValid)
+            _context.Entry(speaker).State = EntityState.Modified;
+
+            try
             {
-                try
-                {
-                    _context.Update(speaker);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SpeakerExists(speaker.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                await _context.SaveChangesAsync();
             }
-            return View(speaker);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SpeakerExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
         }
 
-        // GET: Speakers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: api/Speakers
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [HttpPost]
+        public async Task<ActionResult<Speaker>> PostSpeaker(Speaker speaker)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            _context.Speakers.Add(speaker);
+            await _context.SaveChangesAsync();
 
-            var speaker = await _context.Speakers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            return CreatedAtAction("GetSpeaker", new { id = speaker.Id }, speaker);
+        }
+
+        // DELETE: api/Speakers/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Speaker>> DeleteSpeaker(int id)
+        {
+            var speaker = await _context.Speakers.FindAsync(id);
             if (speaker == null)
             {
                 return NotFound();
             }
 
-            return View(speaker);
-        }
-
-        // POST: Speakers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var speaker = await _context.Speakers.FindAsync(id);
             _context.Speakers.Remove(speaker);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return speaker;
         }
 
         private bool SpeakerExists(int id)
