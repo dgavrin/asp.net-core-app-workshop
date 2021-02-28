@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -113,6 +111,20 @@ namespace FrontEnd.Services
             var response = await _httpClient.PutAsJsonAsync($"/api/sessions/{session.Id}", session);
 
             response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<List<SearchResult>> SearchAsync(string query)
+        {
+            var term = new SearchTerm
+            {
+                Query = query
+            };
+
+            var response = await _httpClient.PostAsJsonAsync($"/api/search", term);
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsAsync<List<SearchResult>>();
         }
     }
 }
