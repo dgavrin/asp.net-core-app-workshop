@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace FrontEnd.Pages
@@ -20,13 +21,17 @@ namespace FrontEnd.Pages
 
         protected readonly IApiClient _apiClient;
 
+        public bool IsAdmin { get; set; }
+
         public IndexModel(IApiClient apiClient)
         {
             _apiClient = apiClient;
         }
 
-        public async Task OnGet(int day = 0)
+        public async Task OnGetAsync(int day = 0)
         {
+            IsAdmin = User.IsAdmin();
+
             CurrentDayOffset = day;
 
             var sessions = await _apiClient.GetSessionsAsync();
