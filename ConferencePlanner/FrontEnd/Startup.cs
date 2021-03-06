@@ -1,4 +1,5 @@
 using System;
+using FrontEnd.Middleware;
 using FrontEnd.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -62,6 +63,8 @@ namespace FrontEnd
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<RequireLoginMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
